@@ -39,12 +39,27 @@ public class MainActivity extends Activity {
 		findViewById(R.id.exit).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				System.exit(0);
+				// System.exit(0);
+				mCamera.takePicture(null, mPictureCallback, null, mPictureCallback1);
 			}
 		});
 
-
 	}
+
+	Camera.PictureCallback mPictureCallback=new Camera.PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] bytes, Camera camera) {
+			Log.e("tag", "raw");
+		}
+	};
+
+	Camera.PictureCallback mPictureCallback1=new Camera.PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] bytes, Camera camera) {
+			Log.e("tag", "jpeg");
+			mCamera.startPreview();
+		}
+	};
 
 	public static Camera open() {
 		int numberOfCameras = getNumberOfCameras();

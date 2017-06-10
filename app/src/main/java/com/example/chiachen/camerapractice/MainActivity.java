@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import static android.hardware.Camera.getCameraInfo;
 import static android.hardware.Camera.getNumberOfCameras;
@@ -13,6 +14,8 @@ import static android.hardware.Camera.getNumberOfCameras;
 public class MainActivity extends Activity {
 	private Camera mCamera = null;
 	private CameraView mCameraView = null;
+	private View mTopBar = null;
+	private View mTopbarClose = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,11 +39,12 @@ public class MainActivity extends Activity {
 		FrameLayout camera_view = (FrameLayout) findViewById(R.id.camera_view);
 		camera_view.addView(mCameraView);
 
-		findViewById(R.id.exit).setOnClickListener(new View.OnClickListener() {
+		mTopBar = findViewById(R.id.topBar);
+		mTopbarClose = mTopBar.findViewById(R.id.topToolBarCloseBtn);
+		mTopbarClose.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				// System.exit(0);
-				mCamera.takePicture(null, mPictureCallback, null, mPictureCallback1);
+			public void onClick(View view) {
+				Toast.makeText(view.getContext(), "show toast",Toast.LENGTH_SHORT).show();
 			}
 		});
 

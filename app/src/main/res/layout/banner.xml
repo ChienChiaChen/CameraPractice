@@ -4,13 +4,13 @@
              android:layout_height="wrap_content"
              xmlns:tools="http://schemas.android.com/tools"
              android:alpha="1"
-             android:background="@android:color/black"
+             android:background="@android:color/transparent"
              android:orientation="vertical">
     <RelativeLayout
         android:id="@+id/normalTopToolBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/t45dp"
-        android:background="@color/launcher_background"
+        android:background="@android:color/transparent"
         tools:ignore="UselessParent" >
 
         <ImageView

@@ -8,4 +8,25 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="GeneralTopBtnStyle">
+        <item name="android:layout_height">@dimen/t45dp</item>
+        <item name="android:layout_width">@dimen/t45dp</item>
+    </style>
+
+    <style name="GeneralTopBtn" parent="GeneralTopBtnStyle">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:contentDescription">@string/app_name</item>
+    </style>
+
+    <style name="GeneralTopTextStyle">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">left|center</item>
+        <item name="android:paddingLeft">@dimen/t10dp</item>
+        <item name="android:paddingRight">@dimen/t10dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/t18dp</item>
+    </style>
+
 </resources>

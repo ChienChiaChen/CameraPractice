@@ -4,7 +4,7 @@
              android:layout_height="wrap_content"
              xmlns:tools="http://schemas.android.com/tools"
              android:alpha="1"
-             android:background="@android:color/transparent"
+             android:background="@android:color/black"
              android:orientation="vertical">
     <RelativeLayout
         android:id="@+id/normalTopToolBar"

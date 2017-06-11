@@ -2,43 +2,63 @@ package com.example.chiachen.camerapractice;
 
 import android.app.Activity;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import static android.hardware.Camera.getCameraInfo;
-import static android.hardware.Camera.getNumberOfCameras;
-
 public class MainActivity extends Activity {
-	private Camera mCamera = null;
-	private CameraView mCameraView = null;
 	private View mTopBar = null;
 	private View mTopbarClose = null;
+	private CameraPreview mCameraPreview = null;
+	private FrameLayout mCameraFrame = null;
+	private Camera mCamera = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		try {
+		initComponent();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		openCamera();
+	}
+
+	private void openCamera() {
+		if (mCamera == null) {
 			mCamera = Camera.open();
-		} catch (Exception e) {
-			Log.e("camera", "getMessage  : " + e.getMessage());
+			mCamera.startPreview();
+			mCamera.setErrorCallback(new Camera.ErrorCallback() {
+				public void onError(int error, Camera camera) {
+					mCamera.release();
+					mCamera = Camera.open();
+					Log.d("Camera died", "error camera");
+				}
+			});
 		}
-
-		if (null == mCamera) {
-			Log.e("camera", "mCamera is null");
-			return;
+		if (mCamera != null) {
+			if (Build.VERSION.SDK_INT >= 14)
+				setCameraDisplayOrientation(this,
+						Camera.CameraInfo.CAMERA_FACING_BACK, mCamera);
+			mCameraPreview.setCamera(mCamera);
+			mCameraPreview.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View view, MotionEvent motionEvent) {
+					return false;
+				}
+			});
 		}
+	}
 
-		// mCameraView = new CameraView(this, mCamera);//create a SurfaceView to show camera data
-		// FrameLayout camera_view = (FrameLayout)findViewById(R.id.camera_view);
-		// camera_view.addView(mCameraView);//add the SurfaceView to the layout
-
-		mCameraView = new CameraView(this, mCamera);
-		FrameLayout camera_view = (FrameLayout) findViewById(R.id.camera_view);
-		camera_view.addView(mCameraView);
-
+	private void initComponent(){
 		mTopBar = findViewById(R.id.topBar);
 		mTopbarClose = mTopBar.findViewById(R.id.topToolBarCloseBtn);
 		mTopbarClose.setOnClickListener(new View.OnClickListener() {
@@ -48,33 +68,40 @@ public class MainActivity extends Activity {
 			}
 		});
 
+		mCameraPreview =new CameraPreview(this, (SurfaceView) findViewById(R.id.camera_preview));
+		mCameraFrame = (FrameLayout) findViewById(R.id.camera);
+		mCameraFrame.addView(mCameraPreview);
+		mCameraPreview.setKeepScreenOn(true);
 	}
 
-	Camera.PictureCallback mPictureCallback=new Camera.PictureCallback() {
-		@Override
-		public void onPictureTaken(byte[] bytes, Camera camera) {
-			Log.e("tag", "raw");
+	private void setCameraDisplayOrientation(Activity activity, int cameraId, android.hardware.Camera camera) {
+		android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+		android.hardware.Camera.getCameraInfo(cameraId, info);
+		int rotation = activity.getWindowManager().getDefaultDisplay()
+				.getRotation();
+		int degrees = 0;
+		switch (rotation) {
+			case Surface.ROTATION_0:
+				degrees = 0;
+				break;
+			case Surface.ROTATION_90:
+				degrees = 90;
+				break;
+			case Surface.ROTATION_180:
+				degrees = 180;
+				break;
+			case Surface.ROTATION_270:
+				degrees = 270;
+				break;
 		}
-	};
 
-	Camera.PictureCallback mPictureCallback1=new Camera.PictureCallback() {
-		@Override
-		public void onPictureTaken(byte[] bytes, Camera camera) {
-			Log.e("tag", "jpeg");
-			mCamera.startPreview();
+		int result;
+		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+			result = (info.orientation + degrees) % 360;
+			result = (360 - result) % 360; // compensate the mirror
+		} else { // back-facing
+			result = (info.orientation - degrees + 360) % 360;
 		}
-	};
-
-	public static Camera open() {
-		int numberOfCameras = getNumberOfCameras();
-		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-		for (int i = 0; i < numberOfCameras; i++) {
-			getCameraInfo(i, cameraInfo);
-			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-
-				Log.e("camera","i: "+i);
-			}
-		}
-		return null;
+		camera.setDisplayOrientation(result);
 	}
 }

@@ -8,23 +8,16 @@
     tools:context="com.example.chiachen.camerapractice.MainActivity">
 
     <FrameLayout
-        android:id="@+id/camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/topBar">
-        <SurfaceView
             android:id="@+id/camera_preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_below="@+id/topBar">
     </FrameLayout>
-
 
     <include
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         layout="@layout/banner"
         android:id="@+id/topBar"/>
-
-
 
 </RelativeLayout>

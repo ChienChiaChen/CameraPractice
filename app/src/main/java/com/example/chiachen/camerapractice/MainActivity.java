@@ -29,33 +29,10 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		openCamera();
-	}
-
-	private void openCamera() {
-		if (mCamera == null) {
-			mCamera = Camera.open();
-			mCamera.startPreview();
-			mCamera.setErrorCallback(new Camera.ErrorCallback() {
-				public void onError(int error, Camera camera) {
-					mCamera.release();
-					mCamera = Camera.open();
-					Log.d("Camera died", "error camera");
-				}
-			});
-		}
-		if (mCamera != null) {
-			if (Build.VERSION.SDK_INT >= 14)
-				setCameraDisplayOrientation(this,
-						Camera.CameraInfo.CAMERA_FACING_BACK, mCamera);
-			mCameraPreview.setCamera(mCamera);
-			mCameraPreview.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View view, MotionEvent motionEvent) {
-					return false;
-				}
-			});
-		}
+		mCameraPreview.openCamera();
+		mCameraPreview.setCameraDisplayOrientation(
+				this.getWindowManager().getDefaultDisplay().getRotation(),
+				Camera.CameraInfo.CAMERA_FACING_BACK);
 	}
 
 	private void initComponent(){
@@ -68,10 +45,10 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		mCameraPreview =new CameraPreview(this, (SurfaceView) findViewById(R.id.camera_preview));
-		mCameraFrame = (FrameLayout) findViewById(R.id.camera);
-		mCameraFrame.addView(mCameraPreview);
+		mCameraPreview =new CameraPreview(this,mCamera);
 		mCameraPreview.setKeepScreenOn(true);
+		FrameLayout camera_view = (FrameLayout) findViewById(R.id.camera_preview);
+		camera_view.addView(mCameraPreview);
 	}
 
 	private void setCameraDisplayOrientation(Activity activity, int cameraId, android.hardware.Camera camera) {

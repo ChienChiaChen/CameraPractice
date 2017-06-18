@@ -23,10 +23,7 @@ import java.util.List;
 class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private final String TAG = "Preview";
 
-    SurfaceView mSurfaceView;
     SurfaceHolder mHolder;
-    int heightmax ;
-	int widthmax ;
     Size mPreviewSize;
     List<Size> mSupportedPreviewSizes;
     Camera mCamera;
@@ -54,6 +51,27 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		});
 		mCamera = setCamera(mCamera);
+	}
+
+	private Camera setCamera(Camera camera) {
+		mCamera = camera;
+		if (mCamera == null) {
+			return camera;
+		}
+		mSupportedPreviewSizes = mCamera.getParameters().getSupportedPictureSizes();
+		requestLayout();
+
+		// get Camera parameters
+		Camera.Parameters params = mCamera.getParameters();
+
+		List<String> focusModes = params.getSupportedFocusModes();
+		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+			// set the focus mode
+			params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+			// set Camera parameters
+			mCamera.setParameters(params);
+		}
+		return camera;
 	}
 
 	public void setCameraDisplayOrientation(int rotation , int cameraId) {
@@ -86,26 +104,29 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 			mCamera.setDisplayOrientation(result);
 	}
 
-    public Camera setCamera(Camera camera) {
-    	mCamera = camera;
-    	if (mCamera == null) {
-		    return camera;
-	    }
-        mSupportedPreviewSizes = mCamera.getParameters().getSupportedPictureSizes();
-        requestLayout();
+	//touch event start
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			float x = event.getX();
+			float y = event.getY();
 
-        // get Camera parameters
-        Camera.Parameters params = mCamera.getParameters();
+			Rect touchRect = new Rect(
+					(int)(x - 200),//left
+					(int)(y - 200),//top
+					(int)(x + 200),//right
+					(int)(y + 200));//bottom
 
-        List<String> focusModes = params.getSupportedFocusModes();
-        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-            // set the focus mode
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            // set Camera parameters
-            mCamera.setParameters(params);
-        }
-	    return camera;
-    }
+			final Rect targetFocusRect = new Rect(
+					touchRect.left * 2000/this.getWidth() - 1000,
+					touchRect.top * 2000/this.getHeight() - 1000,
+					touchRect.right * 2000/this.getWidth() - 1000,
+					touchRect.bottom * 2000/this.getHeight() - 1000);
+
+			doTouchFocus(targetFocusRect);
+		}
+		return super.onTouchEvent(event);
+	}
 
 	public void doTouchFocus(final Rect tfocusRect) {
 		try {
@@ -134,29 +155,7 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		}
 	};
-
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			float x = event.getX();
-			float y = event.getY();
-
-			Rect touchRect = new Rect(
-					(int)(x - 200),
-					(int)(y - 200),
-					(int)(x + 200),
-					(int)(y + 200));
-
-			final Rect targetFocusRect = new Rect(
-					touchRect.left * 2000/this.getWidth() - 1000,
-					touchRect.top * 2000/this.getHeight() - 1000,
-					touchRect.right * 2000/this.getWidth() - 1000,
-					touchRect.bottom * 2000/this.getHeight() - 1000);
-
-			doTouchFocus(targetFocusRect);
-		}
-		return super.onTouchEvent(event);
-	}
+	//touch event end
 
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -168,62 +167,25 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
         setMeasuredDimension(width, height);
 
         if (mSupportedPreviewSizes != null) {
-        	
-          mPreviewSize=maxSize();
-          
+	        mPreviewSize = maxSize();
         }
     }
 
     public Size maxSize(){
 //    	heightmax =0;
 //    	widthmax =0;
-    	Size sizeMax=mSupportedPreviewSizes.get(0);
+	    Size sizeMax = mSupportedPreviewSizes.get(0);
 		//long totalsize = heightmax*widthmax;
     	//long maxsize=mSupportedPreviewSizes.get(0).height*mSupportedPreviewSizes.get(0).width;
-    	
-    	for(Size size:mSupportedPreviewSizes){
-    		if(size.height*size.width>sizeMax.width*sizeMax.height){
-    			sizeMax = size;
-    			
-    		}
-    	}
+
+	    for (Size size : mSupportedPreviewSizes) {
+		    if (size.height * size.width > sizeMax.width * sizeMax.height) {
+			    sizeMax = size;
+		    }
+	    }
     	
     	return sizeMax;
-//    	for(int i = 0;i<mSupportedPreviewSizes.size();i++){
-//    		if(maxsize>totalsize){
-//    			heightmax = mSupportedPreviewSizes.get(i).height;
-//    			widthmax = mSupportedPreviewSizes.get(i).width;
-//    			totalsize=maxsize;
-//    		}
-//    	}
     }
-    // @Override
-    // protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    //     if (changed && getChildCount() > 0) {
-    //         final View child = getChildAt(0);
-    //
-    //         final int width = r - l;
-    //         final int height = b - t;
-    //
-    //         int previewWidth = width;
-    //         int previewHeight = height;
-    //         if (mPreviewSize != null) {
-    //             previewWidth = mPreviewSize.width;
-    //             previewHeight = mPreviewSize.height;
-    //         }
-    //
-    //         // Center the child SurfaceView within the parent.
-    //         if (width * previewHeight > height * previewWidth) {
-    //             final int scaledChildWidth = previewWidth * height / previewHeight;
-    //             child.layout((width - scaledChildWidth) / 2, 0,
-    //                     (width + scaledChildWidth) / 2, height);
-    //         } else {
-    //             final int scaledChildHeight = previewHeight * width / previewWidth;
-    //             child.layout(0, (height - scaledChildHeight) / 2,
-    //                     width, (height + scaledChildHeight) / 2);
-    //         }
-    //     }
-    // }
 
 	// ====SurfaceHolder.Callback====
 	@Override

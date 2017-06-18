@@ -13,8 +13,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,10 +26,12 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     Size mPreviewSize;
     List<Size> mSupportedPreviewSizes;
     Camera mCamera;
+	Context mContext;
 
     CameraPreview(Context context, Camera camera) {
         super(context);
 
+	    mContext = context;
 	    mCamera = camera;
 	    mHolder = getHolder();
         mHolder.addCallback(this);
@@ -55,9 +56,9 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
 	private Camera setCamera(Camera camera) {
 		mCamera = camera;
-		if (mCamera == null) {
+		if (mCamera == null)
 			return camera;
-		}
+
 		mSupportedPreviewSizes = mCamera.getParameters().getSupportedPictureSizes();
 		requestLayout();
 
@@ -149,13 +150,50 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 	Camera.AutoFocusCallback mAutoFocusCallback = new Camera.AutoFocusCallback(){
 
 		@Override
-		public void onAutoFocus(boolean arg0, Camera arg1) {
-			if (arg0){
+		public void onAutoFocus(boolean success, Camera camera) {
+			if (success){
 				mCamera.cancelAutoFocus();
 			}
 		}
 	};
 	//touch event end
+
+	//focus and take picture
+	public void tryFocusAndTakePicture(){
+		if (mCamera == null)
+			return;
+		mCamera.autoFocus(mAutoFocusCallbackAndTakePicture);
+	}
+
+	Camera.AutoFocusCallback mAutoFocusCallbackAndTakePicture = new Camera.AutoFocusCallback(){
+
+		@Override
+		public void onAutoFocus(boolean success, Camera camera) {
+			if (success){
+				camera.takePicture(mShutterCallback, null, mJpegCallback);
+			}
+		}
+	};
+
+	Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+
+		@Override
+		public void onShutter() {
+		}
+	};
+
+	Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			if (data.length!=0)
+				Toast.makeText(mContext, "success ",Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(mContext, "fail",Toast.LENGTH_SHORT).show();
+
+			camera.startPreview();
+		}
+	};
+	//
 
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

@@ -2,19 +2,17 @@ package com.example.chiachen.camerapractice;
 
 import android.app.Activity;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	private View mTopBar = null;
-	private View mTopbarClose = null;
+	private View mTopBar;
+	private View mTopbarClose;
+	private View mBottomBar;
+	private View mShutterBtn;
+
 	private CameraPreview mCameraPreview = null;
 	private Camera mCamera = null;
 
@@ -37,16 +35,37 @@ public class MainActivity extends Activity {
 	private void initComponent(){
 		mTopBar = findViewById(R.id.topBar);
 		mTopbarClose = mTopBar.findViewById(R.id.topToolBarCloseBtn);
-		mTopbarClose.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Toast.makeText(view.getContext(), "show toast",Toast.LENGTH_SHORT).show();
-			}
-		});
+		mBottomBar = findViewById(R.id.bottomBar);
+		mShutterBtn = mBottomBar.findViewById(R.id.shutter_button);
+		setBtnListener(onClickListener, mShutterBtn, mTopbarClose);
 
 		mCameraPreview = new CameraPreview(this, mCamera);
 		mCameraPreview.setKeepScreenOn(true);
 		FrameLayout cameraView = (FrameLayout) findViewById(R.id.camera_preview);
 		cameraView.addView(mCameraPreview);
 	}
+
+	private void setBtnListener(View.OnClickListener listener, View... buttons) {
+		for (View button : buttons) {
+			if (button != null)
+				button.setOnClickListener(listener);
+		}
+	}
+
+	private View.OnClickListener onClickListener =new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()){
+				case R.id.shutter_button:{
+					// Toast.makeText(v.getContext(), "show toast",Toast.LENGTH_SHORT).show();
+					mCameraPreview.tryFocusAndTakePicture();
+					break;
+				}
+				case R.id.topToolBarCloseBtn:{
+					Toast.makeText(v.getContext(), "show toast",Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+		}
+	};
 }

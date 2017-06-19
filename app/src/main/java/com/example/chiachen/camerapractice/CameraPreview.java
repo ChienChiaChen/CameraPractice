@@ -22,11 +22,18 @@ import java.util.List;
 class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private final String TAG = "Preview";
 
-    SurfaceHolder mHolder;
-    Size mPreviewSize;
-    List<Size> mSupportedPreviewSizes;
-    Camera mCamera;
-	Context mContext;
+    private SurfaceHolder mHolder;
+    private Size mPreviewSize;
+    private List<Size> mSupportedPreviewSizes;
+    private Camera mCamera;
+	private Context mContext;
+	private Camera.PictureCallback mJpegCallback;
+	private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+		@Override
+		public void onShutter() {
+
+		}
+	};
 
     CameraPreview(Context context, Camera camera) {
         super(context);
@@ -156,9 +163,9 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		}
 	};
-	//touch event end
+	//Touch event end
 
-	//focus and take picture
+	//Focus and take picture start
 	public void tryFocusAndTakePicture(){
 		if (mCamera == null)
 			return;
@@ -166,34 +173,22 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	Camera.AutoFocusCallback mAutoFocusCallbackAndTakePicture = new Camera.AutoFocusCallback(){
-
 		@Override
 		public void onAutoFocus(boolean success, Camera camera) {
-			if (success){
-				camera.takePicture(mShutterCallback, null, mJpegCallback);
-			}
+			if (!success || null == mJpegCallback || null == mShutterCallback)
+				return;
+			camera.takePicture(mShutterCallback, null, mJpegCallback);
 		}
 	};
 
-	Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+	public void setShutterCallback(Camera.ShutterCallback shutterCallback) {
+		this.mShutterCallback = shutterCallback;
+	}
 
-		@Override
-		public void onShutter() {
-		}
-	};
-
-	Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
-		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			if (data.length!=0)
-				Toast.makeText(mContext, "success ",Toast.LENGTH_SHORT).show();
-			else
-				Toast.makeText(mContext, "fail",Toast.LENGTH_SHORT).show();
-
-			camera.startPreview();
-		}
-	};
-	//
+	public void setJpegCallback(Camera.PictureCallback jpegCallback) {
+		this.mJpegCallback = jpegCallback;
+	}
+	// Focus and take picture end
 
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

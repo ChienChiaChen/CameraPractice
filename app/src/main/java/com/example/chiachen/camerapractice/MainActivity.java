@@ -41,6 +41,16 @@ public class MainActivity extends Activity {
 
 		mCameraPreview = new CameraPreview(this, mCamera);
 		mCameraPreview.setKeepScreenOn(true);
+		mCameraPreview.setJpegCallback(new Camera.PictureCallback() {
+			@Override
+			public void onPictureTaken(byte[] data, Camera camera) {
+				if (data.length!=0)
+					Toast.makeText(MainActivity.this, "success ",Toast.LENGTH_SHORT).show();
+				else
+					Toast.makeText(MainActivity.this, "fail",Toast.LENGTH_SHORT).show();
+				camera.startPreview();
+			}
+		});
 		FrameLayout cameraView = (FrameLayout) findViewById(R.id.camera_preview);
 		cameraView.addView(mCameraPreview);
 	}

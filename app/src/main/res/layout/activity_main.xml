@@ -28,6 +28,16 @@
         android:background="@android:color/black"
         android:alpha="0.8"
         android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:layout_margin="@dimen/f10dp"
+            android:layout_width="@dimen/f100dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/photo_thumbnail">
+        </ImageView>
+
         <ImageView
             android:layout_margin="@dimen/f10dp"
             android:layout_width="wrap_content"

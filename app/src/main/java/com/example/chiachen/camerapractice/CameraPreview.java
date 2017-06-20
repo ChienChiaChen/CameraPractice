@@ -87,16 +87,16 @@ class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 		android.hardware.Camera.getCameraInfo(cameraId, info);
 		int degrees = 0;
 		switch (rotation) {
-			case Surface.ROTATION_0:
+			case Surface.ROTATION_0://Natural orientation
 				degrees = 0;
 				break;
-			case Surface.ROTATION_90:
+			case Surface.ROTATION_90://Landscape left
 				degrees = 90;
 				break;
-			case Surface.ROTATION_180:
+			case Surface.ROTATION_180://Upside down
 				degrees = 180;
 				break;
-			case Surface.ROTATION_270:
+			case Surface.ROTATION_270://Landscape right
 				degrees = 270;
 				break;
 		}

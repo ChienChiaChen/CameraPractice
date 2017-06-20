@@ -58,9 +58,7 @@ public class MainActivity extends Activity {
 					// the Bitmap data after being clear, when it will be used in the future
 					options.inInputShareable=true;
 
-
 					realImage = BitmapFactory.decodeByteArray(data, 0, data.length, options);
-
 					try {
 						ExifInterface exif = new ExifInterface(filePath);
 						Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
@@ -78,6 +76,8 @@ public class MainActivity extends Activity {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+
+					FileExporter.saveBitmapToFile(new File(filePath), realImage);
 					return realImage;
 				}
 
